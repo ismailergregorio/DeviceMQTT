@@ -49,72 +49,15 @@ bool sequenciaAtiva = false;
 
 int passoAtual = 1;
 
-void callback(char *topic, byte *payload, unsigned int length)
-{
-
-  String message = "";
-  for (unsigned int i = 0; i < length; i++)
-  {
-    message += (char)payload[i];
-  }
-
-  Serial.print("Mensagem: ");
-  Serial.println(message);
-
-  if (String(topic) == "app/devices/search")
-  {
-    dadosMqtt.enviarDispositivo();
-  }
-
-  if (String(topic) == "app/" + deviceId + "/statusB")
-  {
-    dadosMqtt.enviarStatusB();
-  }
-
-  if (String(topic) == "app/" + deviceId + "/wifi")
-  {
-    dadosMqtt.enviarWifi();
-  }
-
-  if (String(topic) == "app/" + deviceId + "/mqtt")
-  {
-    dadosMqtt.enviarMQTT();
-  }
-
-  if (String(topic) == "app/" + deviceId + "/health1")
-  {
-    dadosMqtt.enviarHealth1();
-  }
-
-  if (String(topic) == "app/" + deviceId + "/health2")
-  {
-    dadosMqtt.enviarHealth2();
-  }
-
-  if (String(topic) == "app/" + deviceId + "/update")
-  {
-    Serial.print("/update");
-    Serial.println(message);
-
-    // cria documento JSON
-    StaticJsonDocument<256> doc;
-
-    // desserializa JSON
-    DeserializationError erro = deserializeJson(doc, message);
-
-    if (erro)
-    {
-
-      Serial.print("Erro JSON: ");
-      Serial.println(erro.c_str());
-
-      return;
-    }
-    String url = doc["dados"]["url"];
-
-    executarOTA(url);
-  }
-}
+String listaDeComandos[] = {
+    "/search",
+    "/statusB",
+    "/wifi",
+    "/mqtt",
+    "/health1",
+    "/health2",
+    "/update"
+};
 
 void reconnectMQTT()
 {
@@ -134,15 +77,14 @@ void reconnectMQTT()
     if (connected)
     {
       Serial.println("Conectado!");
+      int tamanhoLista = sizeof(listaDeComandos) / sizeof(listaDeComandos[0]);
+
+      for (int i = 0; i < tamanhoLista; i++)
+      {
+        client.subscribe(("app/" + deviceId + listaDeComandos[i]).c_str());
+      }
 
       client.subscribe("app/devices/search");
-      client.subscribe(("app/" + deviceId + "/" + deviceId).c_str());
-      client.subscribe(("app/" + deviceId + "/statusB").c_str());
-      client.subscribe(("app/" + deviceId + "/wifi").c_str());
-      client.subscribe(("app/" + deviceId + "/mqtt").c_str());
-      client.subscribe(("app/" + deviceId + "/health1").c_str());
-      client.subscribe(("app/" + deviceId + "/health2").c_str());
-      client.subscribe(("app/" + deviceId + "/update").c_str());
       dadosMqtt.enviarStatusA();
     }
     else
@@ -151,6 +93,31 @@ void reconnectMQTT()
       Serial.print(client.state());
       Serial.println(" tentando novamente em 3s...");
       delay(3000);
+    }
+  }
+}
+
+void callback(char *topic, byte *payload, unsigned int length)
+{
+
+  String message = "";
+  for (unsigned int i = 0; i < length; i++)
+  {
+    message += (char)payload[i];
+  }
+
+  Serial.print("Mensagem: ");
+  Serial.println(message);
+
+  int tamanhoLista = sizeof(listaDeComandos) / sizeof(listaDeComandos[0]);
+
+  for (int i = 0; i < tamanhoLista; i++)
+  {
+    int valor = String(topic).indexOf(listaDeComandos[i]);
+
+    if (valor != -1)
+    {
+      return enviaComando(listaDeComandos[i], message);
     }
   }
 }
@@ -184,5 +151,10 @@ void loop()
   }
 
   client.loop();
-  executarSequencias(tempoInicioSequencia, intervaloSequencia, tempoPasso, intervaloPasso, sequenciaAtiva, passoAtual, dadosMqtt);
+  executarSequenciasLoop(tempoInicioSequencia,
+                         intervaloSequencia,
+                         tempoPasso, intervaloPasso,
+                         sequenciaAtiva,
+                         passoAtual,
+                         dadosMqtt);
 }

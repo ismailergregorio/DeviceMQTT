@@ -1,6 +1,23 @@
 #include <ESP8266httpUpdate.h>
-void executarOTA(String url)
-{
+#include <ArduinoJson.h>
+void executarOTA(String message)
+{ // cria documento JSON
+    StaticJsonDocument<256> doc;
+
+    // desserializa JSON
+    DeserializationError erro = deserializeJson(doc, message);
+
+    if (erro)
+    {
+
+        Serial.print("Erro JSON: ");
+        Serial.println(erro.c_str());
+
+        return;
+    }
+
+    String url = doc["dados"]["url"];
+    
     Serial.println("Iniciando OTA...");
     Serial.println(ESP.getFreeHeap());
     Serial.println("URL: " + url);
@@ -11,7 +28,7 @@ void executarOTA(String url)
     ESPhttpUpdate.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
     ESPhttpUpdate.rebootOnUpdate(true);
 
-    t_httpUpdate_return ret = ESPhttpUpdate.update(client, "http://192.168.100.5:8081/"+url);
+    t_httpUpdate_return ret = ESPhttpUpdate.update(client, "http://192.168.100.5:8081/" + url);
 
     switch (ret)
     {

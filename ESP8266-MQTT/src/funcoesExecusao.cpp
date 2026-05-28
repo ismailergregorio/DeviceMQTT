@@ -1,15 +1,15 @@
 #include <Arduino.h>
 #include "dados_mqtt.h"
-
-void executarSequencias(
+#include "updateOTA.h"
+DadosMqtt dados;
+void executarSequenciasLoop(
     unsigned long &tempoInicioSequencia,
     unsigned long intervaloSequencia,
     unsigned long &tempoPasso,
     const int intervaloPasso,
     bool &sequenciaAtiva,
     int &passoAtual,
-    DadosMqtt &dadosMqtt
-)
+    DadosMqtt &dadosMqtt)
 {
     if (!sequenciaAtiva &&
         millis() - tempoInicioSequencia >= intervaloSequencia)
@@ -70,5 +70,43 @@ void executarSequencias(
         {
             sequenciaAtiva = false;
         }
+    }
+}
+
+void enviaComando(String topicMensagem, String message)
+{
+    if (topicMensagem == "/search")
+    {
+        dados.enviarDispositivo();
+    }
+
+    if (topicMensagem == "/statusB")
+    {
+        dados.enviarStatusB();
+    }
+
+    if (topicMensagem == "/wifi")
+    {
+        dados.enviarWifi();
+    }
+
+    if (topicMensagem == "/mqtt")
+    {
+        dados.enviarMQTT();
+    }
+
+    if (topicMensagem == "/health1")
+    {
+        dados.enviarHealth1();
+    }
+
+    if (topicMensagem == "/health2")
+    {
+        dados.enviarHealth2();
+    }
+
+    if (topicMensagem == "/update")
+    {
+        executarOTA(message);
     }
 }

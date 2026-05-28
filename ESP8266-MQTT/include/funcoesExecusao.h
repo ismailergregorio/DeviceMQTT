@@ -2,7 +2,7 @@
 #define FUNCOESEXECUSAO_H
 #include <Arduino.h>
 #include "dados_mqtt.h"
-void executarSequencias(
+void executarSequenciasLoop(
     unsigned long &tempoInicioSequencia,
     unsigned long intervaloSequencia,
     unsigned long &tempoPasso,
@@ -10,4 +10,5 @@ void executarSequencias(
     bool &sequenciaAtiva,
     int &passoAtual,
     DadosMqtt &dadosMqtt);
+void enviaComando(String topicMensagem,String message);
 #endif
