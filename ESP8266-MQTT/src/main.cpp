@@ -117,7 +117,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     if (valor != -1)
     {
-      return enviaComando(listaDeComandos[i], message);
+      return enviaComando(listaDeComandos[i], message,dadosMqtt);
     }
   }
 }

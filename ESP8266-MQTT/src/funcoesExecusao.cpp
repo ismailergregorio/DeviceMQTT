@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "dados_mqtt.h"
 #include "updateOTA.h"
-DadosMqtt dados;
 void executarSequenciasLoop(
     unsigned long &tempoInicioSequencia,
     unsigned long intervaloSequencia,
@@ -73,7 +72,7 @@ void executarSequenciasLoop(
     }
 }
 
-void enviaComando(String topicMensagem, String message)
+void enviaComando(String topicMensagem, String message,DadosMqtt dados)
 {
     if (topicMensagem == "/search")
     {

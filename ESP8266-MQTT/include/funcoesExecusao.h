@@ -10,5 +10,5 @@ void executarSequenciasLoop(
     bool &sequenciaAtiva,
     int &passoAtual,
     DadosMqtt &dadosMqtt);
-void enviaComando(String topicMensagem,String message);
+void enviaComando(String topicMensagem, String message,DadosMqtt dados);
 #endif
