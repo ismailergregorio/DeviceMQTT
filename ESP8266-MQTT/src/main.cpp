@@ -56,8 +56,7 @@ String listaDeComandos[] = {
     "/mqtt",
     "/health1",
     "/health2",
-    "/update"
-};
+    "/update"};
 
 void reconnectMQTT()
 {
@@ -117,7 +116,7 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     if (valor != -1)
     {
-      return enviaComando(listaDeComandos[i], message,dadosMqtt);
+      return enviaComando(listaDeComandos[i], message, dadosMqtt);
     }
   }
 }
@@ -141,12 +140,14 @@ void loop()
   // Se cair WiFi, reconecta
   if (WiFi.status() != WL_CONNECTED)
   {
+    Serial.println("Wifi desconectado!");
     ConexaoWifi(ssid, password);
   }
 
   // Se cair MQTT, reconecta
   if (!client.connected())
   {
+    Serial.println("MQTT desconectado!");
     reconnectMQTT();
   }
 
